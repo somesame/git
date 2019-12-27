@@ -23,7 +23,8 @@ do_checkout () {
 	exp_ref="refs/heads/$exp_branch" &&
 
 	# if <sha> is not specified, use HEAD.
-	exp_sha=${2:-$(git rev-parse --verify HEAD)} &&
+	head=$(git rev-parse --verify HEAD) &&
+	exp_sha=${2:-$head} &&
 
 	# default options for git checkout: -b
 	if [ -z "$3" ]; then
@@ -36,8 +37,12 @@ do_checkout () {
 
 	if test -z "$should_fail"
 	then
-		test $exp_ref = $(git rev-parse --symbolic-full-name HEAD) &&
-		test $exp_sha = $(git rev-parse --verify HEAD)
+		echo "$exp_ref" >ref.expect &&
+		git rev-parse --symbolic-full-name HEAD >ref.actual &&
+		test_cmp ref.expect ref.actual &&
+		echo "$exp_sha" >sha.expect &&
+		git rev-parse --verify HEAD >sha.actual &&
+		test_cmp sha.expect sha.actual
 	fi
 }
 
@@ -159,7 +164,8 @@ test_expect_success 'checkout -B to a merge base' '
 '
 
 test_expect_success 'checkout -B to an existing branch from detached HEAD resets branch to HEAD' '
-	git checkout $(git rev-parse --verify HEAD) &&
+	head=$(git rev-parse --verify HEAD) &&
+	git checkout "$head" &&
 
 	do_checkout branch2 "" -B
 '
