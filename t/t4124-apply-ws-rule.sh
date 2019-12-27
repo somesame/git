@@ -42,7 +42,7 @@ apply_patch () {
 		shift
 	fi &&
 	>target &&
-	sed -e "s|\([ab]\)/file|\1/target|" <patch |
+	sed -e "s|\([ab]\)/file|\1/target|" patch |
 	$should_fail git apply "$@"
 }
 
